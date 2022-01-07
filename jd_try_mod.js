@@ -31,7 +31,7 @@ $.getNum = 0;
 $.try = true;
 $.sentNum = 0;
 $.cookiesArr = []
-$.userIgnore = process.env.JD_TRY_USER_IGNORE && process.env.JD_TRY_USER_IGNORE.split(",") || []
+$.userIgnore = process.env.JD_TRY_USER_IGNORE && process.env.JD_TRY_USER_IGNORE.split(",").map(Number) || []
 $.innerKeyWords =
     [
         "幼儿园", "教程", "英语", "辅导", "培训",
@@ -170,7 +170,7 @@ let args_xh = {
                 $.nickName = '';
                 await totalBean();
                 if ($.userIgnore && $.userIgnore.length > 0) {
-                    if ($.userIgnore.indexOf($.index + '') > -1) {
+                    if ($.userIgnore.indexOf($.index) > -1) {
                         console.log(`\n跳过【京东账号${$.index}】${$.nickName || $.UserName}\n`);
                         continue;
                     }
