@@ -12,6 +12,7 @@
 /**
  * 基于原版修改
  * 1.添加过滤，控制部分用户不执行 => 添加变量 JD_TRY_USER_IGNORE = 1,2,3
+ * 2.白名单模式，添加忽略关键字，控制部分结果第二关键字忽略 => 添加变量 JD_TRY_WHITE_IGNORE
  */
 const $ = new Env('京东试用')
 const URL = 'https://api.m.jd.com/client.action'
@@ -140,6 +141,10 @@ let args_xh = {
      * 可通过环境变量控制：JD_TRY_WHITELIST，用@分隔
      * */
     whiteListKeywords: process.env.JD_TRY_WHITELISTKEYWORDS && process.env.JD_TRY_WHITELISTKEYWORDS.split('@') || [],
+    /**
+     * 白名单忽略关键词，当标题存在关键词时，取消加入到试用组
+     */
+    whiteIgnore: process.env.JD_TRY_WHITE_IGNORE && process.env.JD_TRY_WHITE_IGNORE.split('@') || [],
     /*
      * 每多少个账号发送一次通知，默认为4
      * 可通过环境变量控制 JD_TRY_SENDNUM
@@ -398,9 +403,11 @@ function try_feedsList(tabId, page){
                                 args_xh.printLog ? console.log(`检测 tabId:${args_xh.tabId[$.nowTabIdIndex]} 的 第 ${page}/${$.totalPages} 页 第 ${$.nowItem++ + 1} 个商品\n${item.skuTitle}`) : ''
                                 if(args_xh.whiteList){
                                     if(args_xh.whiteListKeywords.some(fileter_word => item.skuTitle.includes(fileter_word))){
-                                        args_xh.printLog ? console.log(`商品白名单通过，将加入试用组，trialActivityId为${item.trialActivityId}\n`) : ''
-                                        trialActivityIdList.push(item.trialActivityId)
-                                        trialActivityTitleList.push(item.skuTitle)
+                                        if (!(args_xh.whiteIgnore.length > 0 && args_xh.whiteIgnore.some(fileter_word => item.skuTitle.includes(fileter_word)))) {
+                                            args_xh.printLog ? console.log(`商品白名单通过，将加入试用组，trialActivityId为${item.trialActivityId}\n`) : ''
+                                            trialActivityIdList.push(item.trialActivityId)
+                                            trialActivityTitleList.push(item.skuTitle)
+                                        }
                                     }
                                 } else {
                                     tempKeyword = ``;
